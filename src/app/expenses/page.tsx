@@ -1,15 +1,11 @@
-import Link from "next/link"
-import { ChevronLeft, Receipt } from "lucide-react"
+import { Receipt } from "lucide-react"
 
 export default function ExpensesPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
-        <div className="flex items-center h-14 px-4">
-          <Link href="/" className="text-slate-500 hover:text-slate-800 p-1 -ml-1">
-            <ChevronLeft className="h-6 w-6" />
-          </Link>
-          <h1 className="text-lg font-semibold text-slate-800 ml-2">Quỹ & Chi phí</h1>
+        <div className="flex items-center justify-center h-14 px-4">
+          <h1 className="text-lg font-semibold text-slate-800">Quỹ & Chi phí</h1>
         </div>
       </header>
       <div className="flex-1 flex flex-col items-center justify-center p-4 text-center">
