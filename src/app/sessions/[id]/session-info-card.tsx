@@ -22,7 +22,7 @@ export default function SessionInfoCard({
   isCreator: boolean,
   currentUserId: string
 }) {
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
   const [isPending, setIsPending] = useState(false)
   const dialogRef = useRef<HTMLDialogElement>(null)
 
