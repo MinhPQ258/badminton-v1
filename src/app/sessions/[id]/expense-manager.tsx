@@ -56,8 +56,8 @@ export default function ExpenseManager({
       
       // 2. Gửi request lên server
       const result = await addExpenseAction(formData)
-      if (result?.error) {
-        setError(result.error)
+      if (!result?.success) {
+        setError(result?.error || "Lỗi")
         openModal() // Mở lại nếu lỗi
       }
     })
@@ -68,7 +68,7 @@ export default function ExpenseManager({
       startTransition(async () => {
         addOptimisticExpense({ type: 'delete', payload: id })
         const result = await deleteExpenseAction(id, sessionId)
-        if (result?.error) setError(result.error)
+        if (!result?.success) setError(result?.error || "Lỗi")
       })
     }
   }
@@ -85,7 +85,7 @@ export default function ExpenseManager({
     if (confirm("Chốt sổ sẽ khóa buổi đánh: Không cho thêm chi phí, không cho sửa điểm danh nữa. Bạn có chắc chắn?")) {
       startTransition(async () => {
         const result = await settleSessionAction(sessionId)
-        if (result?.error) setError(result.error)
+        if (!result?.success) setError(result?.error || "Lỗi")
       })
     }
   }
@@ -98,8 +98,8 @@ export default function ExpenseManager({
       
       {/* Header controls for Admin */}
       {isCreator && !isSettled && (
-        <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-          <span className="text-sm text-slate-500 font-medium">Danh sách các khoản chi</span>
+        <div className="flex justify-between items-center pb-2 border-b border-border">
+          <span className="text-sm text-muted-foreground font-medium">Danh sách các khoản chi</span>
           <Button onClick={openModal} size="sm" className="bg-blue-600 hover:bg-blue-700">
             <Plus className="h-4 w-4 mr-1" /> Thêm khoản chi
           </Button>
@@ -110,15 +110,15 @@ export default function ExpenseManager({
       {optimisticExpenses.length > 0 ? (
         <div className="space-y-2 mt-2">
           {optimisticExpenses.map((expense) => (
-            <div key={expense.id} className={`flex justify-between items-center p-3 bg-white rounded-lg border border-slate-200 shadow-sm transition-all hover:border-slate-300 ${expense.id.toString().startsWith('temp') ? 'opacity-70' : ''}`}>
+            <div key={expense.id} className={`flex justify-between items-center p-3 bg-card rounded-lg border border-border shadow-sm transition-all hover:border-border ${expense.id.toString().startsWith('temp') ? 'opacity-70' : ''}`}>
               <div className="flex flex-col">
-                <span className="font-medium text-slate-800">{expense.label}</span>
-                <span className="text-xs text-slate-500">
+                <span className="font-medium text-foreground">{expense.label}</span>
+                <span className="text-xs text-muted-foreground">
                   {new Date(expense.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="font-semibold text-slate-900">{expense.amount.toLocaleString('vi-VN')} đ</span>
+                <span className="font-semibold text-foreground">{expense.amount.toLocaleString('vi-VN')} đ</span>
                 {isCreator && !isSettled && (
                   <button 
                     type="button"
@@ -131,14 +131,14 @@ export default function ExpenseManager({
               </div>
             </div>
           ))}
-          <div className="flex justify-between items-center p-3 bg-blue-50/50 rounded-lg font-bold text-blue-900 border border-blue-100 mt-2 transition-all">
+          <div className="flex justify-between items-center p-3 bg-primary/10/50 rounded-lg font-bold text-blue-900 border border-blue-100 mt-2 transition-all">
             <span>Tổng cộng:</span>
             <span>{totalCost.toLocaleString('vi-VN')} đ</span>
           </div>
         </div>
       ) : (
-          <div className="p-8 mt-2 text-center text-sm text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-300">
-            <Receipt className="h-8 w-8 mx-auto text-slate-300 mb-2 opacity-50" />
+          <div className="p-8 mt-2 text-center text-sm text-muted-foreground bg-secondary rounded-lg border border-dashed border-border">
+            <Receipt className="h-8 w-8 mx-auto text-muted-foreground mb-2 opacity-50" />
             Chưa có khoản chi phí nào được ghi nhận.
           </div>
       )}
@@ -148,10 +148,10 @@ export default function ExpenseManager({
         ref={dialogRef}
         className="p-0 bg-transparent backdrop:bg-slate-900/50 backdrop:backdrop-blur-sm m-auto rounded-xl w-full max-w-sm overflow-hidden"
       >
-        <div className="bg-white flex flex-col w-full">
-          <div className="flex justify-between items-center p-4 border-b border-slate-100">
-            <h3 className="font-semibold text-lg text-slate-800">Thêm khoản chi</h3>
-            <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 p-1 rounded-full transition-colors">
+        <div className="bg-card flex flex-col w-full">
+          <div className="flex justify-between items-center p-4 border-b border-border">
+            <h3 className="font-semibold text-lg text-foreground">Thêm khoản chi</h3>
+            <button onClick={closeModal} className="text-muted-foreground hover:text-muted-foreground bg-secondary hover:bg-secondary p-1 rounded-full transition-colors">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -160,13 +160,13 @@ export default function ExpenseManager({
             <input type="hidden" name="session_id" value={sessionId} />
             
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Tên khoản chi</label>
-              <Input name="label" placeholder="VD: Tiền sân, Tiền cầu..." required autoFocus className="bg-slate-50 focus:bg-white" />
+              <label className="text-sm font-medium text-foreground">Tên khoản chi</label>
+              <Input name="label" placeholder="VD: Tiền sân, Tiền cầu..." required autoFocus className="bg-secondary focus:bg-card" />
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Số tiền (VNĐ)</label>
-              <Input name="amount" type="number" placeholder="VD: 200000" required className="bg-slate-50 focus:bg-white text-lg font-medium" />
+              <label className="text-sm font-medium text-foreground">Số tiền (VNĐ)</label>
+              <Input name="amount" type="number" placeholder="VD: 200000" required className="bg-secondary focus:bg-card text-lg font-medium" />
             </div>
             
             <div className="pt-2 flex gap-2">
@@ -183,7 +183,7 @@ export default function ExpenseManager({
 
       {/* Nút chốt sổ */}
       {isCreator && optimisticExpenses.length > 0 && !isSettled && (
-        <div className="pt-4 border-t border-slate-200 mt-4">
+        <div className="pt-4 border-t border-border mt-4">
           <Button 
             onClick={handleSettle}
             disabled={isPending}
@@ -192,7 +192,7 @@ export default function ExpenseManager({
             <CheckCircle className="h-5 w-5 mr-2" />
             {isPending ? "Đang xử lý..." : "Chốt sổ & Tính tiền"}
           </Button>
-          <p className="text-xs text-slate-500 text-center mt-3 leading-relaxed">
+          <p className="text-xs text-muted-foreground text-center mt-3 leading-relaxed">
             * Sau khi chốt sổ, hệ thống sẽ chia đều tiền cho số người thực tế có mặt. Không thể thêm sửa xóa chi phí nữa.
           </p>
         </div>

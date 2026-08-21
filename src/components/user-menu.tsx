@@ -22,7 +22,7 @@ export default function UserMenu({ userName }: { userName: string }) {
     <div className="relative" ref={menuRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 p-1.5 rounded-full hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="flex items-center gap-2 p-1.5 rounded-full hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm">
           {userName.charAt(0).toUpperCase()}
@@ -30,13 +30,13 @@ export default function UserMenu({ userName }: { userName: string }) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-100 py-1 z-50">
+        <div className="absolute right-0 mt-2 w-48 bg-card rounded-lg shadow-lg border border-border py-1 z-50">
           <div className="px-4 py-2 border-b border-slate-50 mb-1">
-            <p className="text-sm font-medium text-slate-800 truncate">{userName}</p>
+            <p className="text-sm font-medium text-foreground truncate">{userName}</p>
           </div>
           
           <button 
-            className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors"
+            className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
             onClick={() => {
               setIsOpen(false)
               alert("Tính năng sửa thông tin sẽ được cập nhật sớm!")

@@ -28,19 +28,19 @@ export default async function DashboardPage() {
   }
 
   const getMyStatusBadge = (status: string | null) => {
-    if (status === 'going') return <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium border border-green-200">Bạn: Tham gia</span>
+    if (status === 'going') return <span className="px-2 py-0.5 bg-primary/20 text-primary rounded text-xs font-medium border border-primary">Bạn: Tham gia</span>
     if (status === 'not_going') return <span className="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium border border-red-200">Bạn: Bận</span>
-    return <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-xs border border-slate-200">Chưa xác nhận</span>
+    return <span className="px-2 py-0.5 bg-secondary text-muted-foreground rounded text-xs border border-border">Chưa xác nhận</span>
   }
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 w-full">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">
+          <h1 className="text-3xl font-bold text-foreground">
             Xin chào, {user?.user_metadata?.full_name || user?.email?.split('@')[0]}! 👋
           </h1>
-          <p className="text-slate-500 mt-1">Chào mừng bạn đến với CLB Cầu Lông</p>
+          <p className="text-muted-foreground mt-1">Chào mừng bạn đến với CLB Cầu Lông</p>
         </div>
         <Link href="/sessions/new">
           <Button className="gap-2">
@@ -53,8 +53,8 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-slate-900">Buổi đánh sắp tới</h2>
-            <Link href="/sessions" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+            <h2 className="text-xl font-semibold text-foreground">Buổi đánh sắp tới</h2>
+            <Link href="/sessions" className="text-sm text-primary hover:underline flex items-center gap-1">
               Xem tất cả <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
@@ -67,28 +67,28 @@ export default async function DashboardPage() {
                 
                 return (
                   <Link href={`/sessions/${session.id}`} key={session.id} className="block group">
-                    <Card className="h-full hover:shadow-md transition-all hover:border-blue-300">
+                    <Card className="h-full hover:shadow-md transition-all hover:border-primary">
                       <CardHeader className="pb-3">
                         <div className="flex justify-between items-start mb-2">
-                          <CardDescription><span className="font-medium text-blue-600">Sắp diễn ra</span></CardDescription>
+                          <CardDescription><span className="font-medium text-primary">Sắp diễn ra</span></CardDescription>
                           {getMyStatusBadge(myStatus)}
                         </div>
-                        <CardTitle className="text-lg line-clamp-1 group-hover:text-blue-600 transition-colors">{formatDate(session.start_time)}</CardTitle>
+                        <CardTitle className="text-lg line-clamp-1 group-hover:text-primary transition-colors">{formatDate(session.start_time)}</CardTitle>
                       </CardHeader>
-                      <CardContent className="pb-4 text-sm text-slate-600 space-y-3">
+                      <CardContent className="pb-4 text-sm text-muted-foreground space-y-3">
                         <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-slate-400" />
+                          <MapPin className="w-4 h-4 text-muted-foreground" />
                           <span className="truncate">{session.venue || 'Chưa cập nhật địa điểm'}</span>
                         </div>
-                        <div className="flex items-center justify-between bg-slate-50 p-2 rounded-md">
+                        <div className="flex items-center justify-between bg-secondary p-2 rounded-md">
                           <div className="flex items-center gap-1">
-                            <Users className="w-4 h-4 text-blue-500" />
-                            <span className="font-medium text-slate-700">{goingCount} <span className="font-normal text-slate-500 text-xs">đăng ký</span></span>
+                            <Users className="w-4 h-4 text-primary" />
+                            <span className="font-medium text-foreground">{goingCount} <span className="font-normal text-muted-foreground text-xs">đăng ký</span></span>
                           </div>
                           <div className="h-4 w-px bg-slate-300"></div>
                           <div className="flex items-center gap-1">
-                            <CheckCircle2 className="w-4 h-4 text-green-500" />
-                            <span className="font-medium text-slate-700">{session.total_attendees || 0} <span className="font-normal text-slate-500 text-xs">điểm danh</span></span>
+                            <CheckCircle2 className="w-4 h-4 text-primary" />
+                            <span className="font-medium text-foreground">{session.total_attendees || 0} <span className="font-normal text-muted-foreground text-xs">điểm danh</span></span>
                           </div>
                         </div>
                       </CardContent>
@@ -98,11 +98,11 @@ export default async function DashboardPage() {
               })}
             </div>
           ) : (
-            <Card className="bg-slate-50 border-dashed">
+            <Card className="bg-secondary border-dashed">
               <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                <CalendarDays className="w-12 h-12 text-slate-300 mb-4" />
-                <h3 className="text-lg font-medium text-slate-900 mb-1">Chưa có buổi đánh nào</h3>
-                <p className="text-slate-500 mb-4 max-w-sm">Hiện tại câu lạc bộ chưa có lịch đánh cầu nào sắp tới. Bạn có thể tạo buổi đánh mới để mời mọi người.</p>
+                <CalendarDays className="w-12 h-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-1">Chưa có buổi đánh nào</h3>
+                <p className="text-muted-foreground mb-4 max-w-sm">Hiện tại câu lạc bộ chưa có lịch đánh cầu nào sắp tới. Bạn có thể tạo buổi đánh mới để mời mọi người.</p>
                 <Link href="/sessions/new">
                   <Button variant="outline">Tạo buổi đánh đầu tiên</Button>
                 </Link>
@@ -112,7 +112,7 @@ export default async function DashboardPage() {
         </div>
 
         <div className="space-y-6">
-          <h2 className="text-xl font-semibold text-slate-900">Lịch sử gần đây</h2>
+          <h2 className="text-xl font-semibold text-foreground">Lịch sử gần đây</h2>
           
           <Card>
             <CardContent className="p-0">
@@ -122,26 +122,26 @@ export default async function DashboardPage() {
                     const goingCount = rsvpsData.filter(r => r.session_id === session.id && r.status === 'going').length
                     
                     return (
-                      <Link key={session.id} href={`/sessions/${session.id}`} className="block p-4 hover:bg-slate-50 transition-colors group">
+                      <Link key={session.id} href={`/sessions/${session.id}`} className="block p-4 hover:bg-secondary transition-colors group">
                         <div className="flex justify-between items-start mb-1">
-                          <span className="font-medium text-slate-900 group-hover:text-blue-600 transition-colors">
+                          <span className="font-medium text-foreground group-hover:text-primary transition-colors">
                             {new Date(session.start_time).toLocaleDateString('vi-VN')}
                           </span>
-                          <span className="text-[10px] px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">
+                          <span className="text-[10px] px-2 py-0.5 bg-primary/20 text-primary rounded-full font-medium">
                             {session.status === 'settled' ? 'Đã quyết toán' : 'Hoàn thành'}
                           </span>
                         </div>
-                        <div className="text-sm text-slate-500 flex justify-between items-center mt-2">
+                        <div className="text-sm text-muted-foreground flex justify-between items-center mt-2">
                           <div className="flex items-center gap-3">
                             <span className="flex items-center gap-1" title="Số đăng ký">
-                              <Users className="w-3 h-3 text-slate-400" /> {goingCount}
+                              <Users className="w-3 h-3 text-muted-foreground" /> {goingCount}
                             </span>
                             <span className="flex items-center gap-1" title="Đã điểm danh">
-                              <CheckCircle2 className="w-3 h-3 text-green-500" /> {session.total_attendees || 0}
+                              <CheckCircle2 className="w-3 h-3 text-primary" /> {session.total_attendees || 0}
                             </span>
                           </div>
                           {session.cost_per_person && (
-                            <span className="font-medium text-slate-700">
+                            <span className="font-medium text-foreground">
                               {session.cost_per_person.toLocaleString('vi-VN')}đ / người
                             </span>
                           )}
@@ -151,14 +151,14 @@ export default async function DashboardPage() {
                   })}
                 </div>
               ) : (
-                <div className="p-8 text-center text-sm text-slate-500">
+                <div className="p-8 text-center text-sm text-muted-foreground">
                   Chưa có lịch sử buổi đánh
                 </div>
               )}
             </CardContent>
             {recentSessions.length > 0 && (
               <CardFooter className="p-4 pt-0 border-t mt-2">
-                <Link href="/sessions?tab=history" className="text-sm text-blue-600 hover:underline w-full text-center mt-3 block">
+                <Link href="/sessions?tab=history" className="text-sm text-primary hover:underline w-full text-center mt-3 block">
                   Xem toàn bộ lịch sử
                 </Link>
               </CardFooter>

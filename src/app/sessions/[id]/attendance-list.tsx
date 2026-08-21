@@ -77,20 +77,20 @@ export default function AttendanceList({
     <div className="space-y-4">
       {/* Danh sách thành viên chính thức */}
       <div className="space-y-3">
-        <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Thành viên ({goingUsers.length})</h4>
+        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Thành viên ({goingUsers.length})</h4>
         {goingUsers.map(rsvp => {
           const hasAttended = optimisticAttendances.some(a => a.user_id === rsvp.user_id && a.attended)
           const canEdit = !isSettled && (isCreator || currentUserId === rsvp.user_id)
           
           return (
-            <label key={rsvp.user_id} className={`flex justify-between items-center p-3 rounded-lg border transition-all duration-200 ${canEdit ? 'cursor-pointer' : 'cursor-default'} ${hasAttended ? (isCreator ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200') : 'bg-white hover:bg-slate-50'}`}>
-              <span className={`font-medium ${hasAttended ? (isCreator ? 'text-amber-900' : 'text-green-800') : 'text-slate-700'}`}>
+            <label key={rsvp.user_id} className={`flex justify-between items-center p-3 rounded-lg border transition-all duration-200 ${canEdit ? 'cursor-pointer' : 'cursor-default'} ${hasAttended ? (isCreator ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-primary') : 'bg-card hover:bg-secondary'}`}>
+              <span className={`font-medium ${hasAttended ? (isCreator ? 'text-amber-900' : 'text-green-800') : 'text-foreground'}`}>
                 {rsvp.profiles?.full_name || 'Người dùng ẩn danh'}
                 {currentUserId === rsvp.user_id && " (Bạn)"}
               </span>
               <input 
                 type="checkbox" 
-                className={`h-5 w-5 rounded border-slate-300 transition-colors ${isCreator ? 'text-amber-600 focus:ring-amber-500' : 'text-green-600 focus:ring-green-500'} disabled:opacity-50`}
+                className={`h-5 w-5 rounded border-border transition-colors ${isCreator ? 'text-amber-600 focus:ring-amber-500' : 'text-primary focus:ring-green-500'} disabled:opacity-50`}
                 checked={hasAttended}
                 disabled={!canEdit}
                 onChange={(e) => {
@@ -106,7 +106,7 @@ export default function AttendanceList({
         })}
         
         {goingUsers.length === 0 && (
-          <div className="p-4 text-center text-sm text-slate-500 bg-slate-50 rounded-lg border border-dashed">
+          <div className="p-4 text-center text-sm text-muted-foreground bg-secondary rounded-lg border border-dashed">
             Chưa có thành viên nào đăng ký
           </div>
         )}
@@ -115,7 +115,7 @@ export default function AttendanceList({
       {/* Danh sách khách vãng lai */}
       <div className="space-y-3 pt-2">
         <div className="flex justify-between items-center">
-          <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Khách vãng lai ({optimisticGuests.length})</h4>
+          <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Khách vãng lai ({optimisticGuests.length})</h4>
         </div>
         
         {optimisticGuests.map(guest => (
@@ -145,7 +145,7 @@ export default function AttendanceList({
               name="name" 
               placeholder="Nhập tên khách..." 
               required
-              className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button 
               type="submit" 

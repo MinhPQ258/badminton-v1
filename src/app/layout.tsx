@@ -32,19 +32,23 @@ export const viewport: Viewport = {
 
 import Navbar from "@/components/layout/navbar";
 import BottomNav from "@/components/layout/bottom-nav";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased bg-slate-50`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col relative">
-        <Navbar />
-        <main className="flex-1 flex flex-col pb-20">
-          {children}
-        </main>
-        <BottomNav />
+      <body className="min-h-full flex flex-col relative bg-background text-foreground transition-colors duration-300">
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+          <Navbar />
+          <main className="flex-1 flex flex-col pb-20">
+            {children}
+          </main>
+          <BottomNav />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -2,86 +2,36 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { actionWrapper } from "@/lib/utils/action-wrapper"
+import { addGuestSchema } from "@/modules/guest/guest.schema"
+import * as guestService from "@/modules/guest/guest.service"
+import { AppError } from "@/lib/utils/error"
 
 export async function addGuestAction(sessionId: string, name: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) {
-    return { error: "Bạn phải đăng nhập" }
-  }
+  return actionWrapper(async () => {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new AppError("Bạn phải đăng nhập", 401)
 
-  // Security check: only creator can add guest
-  const { data: session } = await supabase.from('sessions').select('created_by, status').eq('id', sessionId).single()
-  if (!session || session.created_by !== user.id) {
-    return { error: "Chỉ quản trị viên mới được phép thêm khách" }
-  }
+    const input = { sessionId, name }
+    const parsed = addGuestSchema.parse(input)
 
-  if (session.status === 'settled') {
-    return { error: "Buổi đánh đã chốt sổ, không thể thêm khách" }
-  }
-
-  const { error } = await supabase
-    .from('session_guests')
-    .insert({
-      session_id: sessionId,
-      name: name,
-      added_by: user.id
-    })
-
-  if (error) {
-    console.error("Add Guest Error:", error)
-    return { error: "Không thể thêm khách. Vui lòng thử lại." }
-  }
-
-  revalidatePath(`/sessions/${sessionId}`)
-  return { success: true }
+    await guestService.addGuest(parsed.sessionId, parsed.name, user.id)
+    revalidatePath(`/sessions/${sessionId}`)
+  })
 }
 
 export async function removeGuestAction(guestId: string, sessionId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) {
-    return { error: "Bạn phải đăng nhập" }
-  }
+  return actionWrapper(async () => {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new AppError("Bạn phải đăng nhập", 401)
 
-  const { data: session } = await supabase.from('sessions').select('created_by, status').eq('id', sessionId).single()
-  if (!session || session.created_by !== user.id) {
-    return { error: "Chỉ quản trị viên mới được phép xóa khách" }
-  }
-
-  if (session.status === 'settled') {
-    return { error: "Buổi đánh đã chốt sổ, không thể xóa khách" }
-  }
-
-  const { error } = await supabase
-    .from('session_guests')
-    .delete()
-    .eq('id', guestId)
-
-  if (error) {
-    console.error("Remove Guest Error:", error)
-    return { error: "Không thể xóa khách." }
-  }
-
-  revalidatePath(`/sessions/${sessionId}`)
-  return { success: true }
+    await guestService.removeGuest(guestId, sessionId, user.id)
+    revalidatePath(`/sessions/${sessionId}`)
+  })
 }
 
 export async function getGuestsForSession(sessionId: string) {
-  const supabase = await createClient()
-  
-  const { data, error } = await supabase
-    .from('session_guests')
-    .select('*')
-    .eq('session_id', sessionId)
-    .order('created_at', { ascending: true })
-    
-  if (error) {
-    console.error("Error fetching guests:", error)
-    return []
-  }
-  
-  return data
+  return await guestService.getGuestsForSession(sessionId)
 }

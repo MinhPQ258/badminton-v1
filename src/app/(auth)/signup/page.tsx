@@ -24,20 +24,20 @@ export default function SignupPage() {
     const formData = new FormData(e.currentTarget)
     const result = await signupAction(formData)
 
-    if (result?.error) {
-      setError(result.error)
+    if (!result?.success) {
+      setError(result?.error || "Đã xảy ra lỗi")
       setLoading(false)
-    } else if (result?.success) {
+    } else {
       router.push("/")
       router.refresh()
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center text-blue-600">Đăng ký thành viên</CardTitle>
+          <CardTitle className="text-2xl text-center text-primary">Đăng ký thành viên</CardTitle>
           <CardDescription className="text-center">
             Tạo tài khoản mới bằng Tên đăng nhập (Username)
           </CardDescription>
@@ -92,9 +92,9 @@ export default function SignupPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Đang xử lý..." : "Đăng ký"}
             </Button>
-            <div className="text-center text-sm text-slate-500">
+            <div className="text-center text-sm text-muted-foreground">
               Đã có tài khoản?{" "}
-              <Link href="/login" className="text-blue-600 hover:underline">
+              <Link href="/login" className="text-primary hover:underline">
                 Đăng nhập
               </Link>
             </div>

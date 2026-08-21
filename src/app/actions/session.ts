@@ -1,90 +1,43 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import { actionWrapper } from "@/lib/utils/action-wrapper";
+import { createSessionSchema } from "@/modules/session/session.schema";
+import * as sessionService from "@/modules/session/session.service";
+import { createClient } from "@/lib/supabase/server";
+import { AppError } from "@/lib/utils/error";
 
+// Những hàm GET thường được gọi trực tiếp trên Server Components 
+// nên ta vẫn trả về raw data thay vì bọc actionWrapper (để tránh break UI cũ)
 export async function getUpcomingSessions() {
-  const supabase = await createClient()
-  
-  const { data, error } = await supabase
-    .from('sessions')
-    .select('*')
-    .eq('status', 'upcoming')
-    .order('start_time', { ascending: true })
-    
-  if (error) {
-    console.error("Error fetching sessions:", error)
-    return []
-  }
-  
-  return data
+  return await sessionService.getUpcomingSessions();
 }
 
 export async function getRecentSessions() {
-  const supabase = await createClient()
-  
-  const { data, error } = await supabase
-    .from('sessions')
-    .select('*')
-    .in('status', ['completed', 'settled'])
-    .order('start_time', { ascending: false })
-    .limit(5)
-    
-  if (error) {
-    console.error("Error fetching recent sessions:", error)
-    return []
-  }
-  
-  return data
-}
-
-export async function createSessionAction(formData: FormData) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) {
-    return { error: "Bạn phải đăng nhập để tạo buổi đánh" }
-  }
-
-  const startTime = formData.get("start_time") as string
-  const endTime = formData.get("end_time") as string
-  // const location = formData.get("location") as string // Bỏ qua location vì CSDL chưa có cột này
-  
-  if (!startTime || !endTime) {
-    return { error: "Vui lòng nhập đầy đủ thời gian bắt đầu và kết thúc" }
-  }
-
-  const { data, error } = await supabase
-    .from('sessions')
-    .insert({
-      start_time: new Date(startTime).toISOString(),
-      end_time: new Date(endTime).toISOString(),
-      status: 'upcoming',
-      created_by: user.id,
-      venue: formData.get("location") as string || "Chưa xác định",
-    })
-    .select()
-    .single()
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  return { success: true, id: data.id }
+  return await sessionService.getRecentSessions();
 }
 
 export async function getSessionById(id: string) {
-  const supabase = await createClient()
-  
-  const { data, error } = await supabase
-    .from('sessions')
-    .select('*')
-    .eq('id', id)
-    .single()
-    
-  if (error) {
-    return null
-  }
-  
-  return data
+  return await sessionService.getSessionById(id);
 }
 
+// Server Action mutate data -> Áp dụng Action Wrapper và Validation
+export async function createSessionAction(formData: FormData) {
+  return actionWrapper(async () => {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      throw new AppError("Bạn phải đăng nhập để tạo buổi đánh", 401);
+    }
+
+    const input = {
+      start_time: formData.get("start_time") as string,
+      end_time: formData.get("end_time") as string,
+      location: formData.get("location") as string,
+    };
+    
+    const parsedInput = createSessionSchema.parse(input);
+    
+    return await sessionService.createSession(parsedInput, user.id);
+  });
+}

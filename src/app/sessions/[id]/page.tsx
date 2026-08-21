@@ -36,12 +36,12 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
   const showExpenses = isCreator || session.status === 'settled'
 
   return (
-    <div className="w-full flex flex-col h-[calc(100dvh-4rem)] overflow-hidden bg-slate-50">
+    <div className="w-full flex flex-col h-[calc(100dvh-4rem)] overflow-hidden bg-secondary">
       
       {/* HEADER (Cố định ở trên) */}
-      <div className="shrink-0 bg-white border-b border-slate-200 px-4 py-3 sm:px-6 z-10 shadow-sm relative">
+      <div className="shrink-0 bg-card border-b border-border px-4 py-3 sm:px-6 z-10 shadow-sm relative">
         <div className="max-w-3xl mx-auto flex items-center">
-          <Link href="/" className="inline-flex items-center text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors">
+          <Link href="/" className="inline-flex items-center text-sm font-medium text-foreground hover:text-primary transition-colors">
             <ArrowLeft className="mr-2 h-5 w-5" /> Quay lại
           </Link>
         </div>
@@ -71,13 +71,13 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
           {/* Quản lý Thu Chi */}
           {showExpenses && (
             <Card className="shadow-sm">
-              <CardHeader className="pb-3 border-b border-slate-100">
+              <CardHeader className="pb-3 border-b border-border">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Receipt className="h-5 w-5 text-slate-600" /> Quản lý thu chi
+                  <Receipt className="h-5 w-5 text-muted-foreground" /> Quản lý thu chi
                 </CardTitle>
                 {!isCreator && <CardDescription>Danh sách chi phí được công khai minh bạch</CardDescription>}
               </CardHeader>
-              <CardContent className="pt-4 bg-slate-50/50">
+              <CardContent className="pt-4 bg-secondary/50">
                 <ExpenseManager 
                   sessionId={session.id} 
                   expenses={expenses} 
@@ -91,7 +91,7 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
       </div>
 
       {/* FOOTER (Cố định ở dưới) */}
-      <div className="shrink-0 bg-white border-t border-slate-200 shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.1)] pb-[max(env(safe-area-inset-bottom),0px)] z-10 relative">
+      <div className="shrink-0 bg-card border-t border-border shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.1)] pb-[max(env(safe-area-inset-bottom),0px)] z-10 relative">
         <div className="max-w-3xl mx-auto p-4 sm:px-6 flex items-center justify-center">
           <RSVPButtons sessionId={session.id} currentStatus={currentUserRSVP?.status} />
         </div>

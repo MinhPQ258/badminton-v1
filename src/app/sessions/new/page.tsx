@@ -51,11 +51,11 @@ export default function NewSessionPage() {
 
     const result = await createSessionAction(formData)
     
-    if (result?.error) {
-      setError(result.error)
+    if (!result?.success) {
+      setError(result?.error || "Đã xảy ra lỗi")
       setLoading(false)
-    } else if (result?.success) {
-      router.push(`/sessions/${result.id}`)
+    } else if (result.data) {
+      router.push(`/sessions/${result.data.id}`)
       router.refresh()
     }
   }
@@ -63,7 +63,7 @@ export default function NewSessionPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8 w-full">
       <div className="mb-6">
-        <Link href="/" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-blue-600">
+        <Link href="/" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary">
           <ArrowLeft className="mr-1 h-4 w-4" /> Quay lại trang chủ
         </Link>
       </div>
@@ -71,7 +71,7 @@ export default function NewSessionPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2">
-            <CalendarDays className="h-6 w-6 text-blue-600" />
+            <CalendarDays className="h-6 w-6 text-primary" />
             Tạo buổi đánh mới
           </CardTitle>
           <CardDescription>
@@ -83,7 +83,7 @@ export default function NewSessionPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium leading-none flex items-center gap-2" htmlFor="start_time">
-                  <Clock className="h-4 w-4 text-slate-500" /> Thời gian bắt đầu
+                  <Clock className="h-4 w-4 text-muted-foreground" /> Thời gian bắt đầu
                 </label>
                 <Input
                   id="start_time"
@@ -95,7 +95,7 @@ export default function NewSessionPage() {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium leading-none flex items-center gap-2" htmlFor="end_time">
-                  <Clock className="h-4 w-4 text-slate-500" /> Thời gian kết thúc
+                  <Clock className="h-4 w-4 text-muted-foreground" /> Thời gian kết thúc
                 </label>
                 <Input
                   id="end_time"
@@ -104,13 +104,13 @@ export default function NewSessionPage() {
                   onChange={(e) => setEndTime(e.target.value)}
                   required
                 />
-                <p className="text-xs text-slate-500 mt-1">Mặc định kéo dài 2 tiếng</p>
+                <p className="text-xs text-muted-foreground mt-1">Mặc định kéo dài 2 tiếng</p>
               </div>
             </div>
             
             <div className="space-y-2">
               <label className="text-sm font-medium leading-none flex items-center gap-2" htmlFor="location">
-                <MapPin className="h-4 w-4 text-slate-500" /> Địa điểm sân
+                <MapPin className="h-4 w-4 text-muted-foreground" /> Địa điểm sân
               </label>
               <Input
                 id="location"

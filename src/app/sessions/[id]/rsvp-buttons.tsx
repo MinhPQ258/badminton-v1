@@ -28,7 +28,7 @@ export default function RSVPButtons({ sessionId, currentStatus }: RSVPButtonsPro
   return (
     <div className="flex gap-3 w-full">
       <Button 
-        className={`flex-1 h-12 text-base font-medium justify-center transition-all duration-200 border-2 ${optimisticStatus === 'going' ? 'border-primary' : 'border-slate-300'}`} 
+        className={`flex-1 h-12 text-base font-medium justify-center transition-all duration-200 border-2 ${optimisticStatus === 'going' ? 'border-primary' : 'border-border'}`} 
         variant={optimisticStatus === 'going' ? 'default' : 'outline'}
         onClick={() => handleToggle('going')}
         disabled={isPending}
@@ -36,7 +36,7 @@ export default function RSVPButtons({ sessionId, currentStatus }: RSVPButtonsPro
         {isPending && optimisticStatus !== 'going' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <CheckCircle2 className="mr-2 h-5 w-5" />} Tham gia
       </Button>
       <Button 
-        className={`flex-1 h-12 text-base font-medium justify-center transition-all duration-200 border-2 ${optimisticStatus === 'not_going' ? 'border-destructive' : 'border-slate-300'}`} 
+        className={`flex-1 h-12 text-base font-medium justify-center transition-all duration-200 border-2 ${optimisticStatus === 'not_going' ? 'border-destructive' : 'border-border'}`} 
         variant={optimisticStatus === 'not_going' ? 'destructive' : 'outline'}
         onClick={() => handleToggle('not_going')}
         disabled={isPending}

@@ -23,20 +23,20 @@ export default function LoginPage() {
     const formData = new FormData(e.currentTarget)
     const result = await loginAction(formData)
 
-    if (result?.error) {
-      setError(result.error)
+    if (!result?.success) {
+      setError(result?.error || "Đã xảy ra lỗi")
       setLoading(false)
-    } else if (result?.success) {
+    } else {
       router.push("/")
       router.refresh()
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center text-blue-600">Đăng nhập</CardTitle>
+          <CardTitle className="text-2xl text-center text-primary">Đăng nhập</CardTitle>
           <CardDescription className="text-center">
             Nhập tên đăng nhập và mật khẩu để vào hệ thống
           </CardDescription>
@@ -76,9 +76,9 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Đang xử lý..." : "Đăng nhập"}
             </Button>
-            <div className="text-center text-sm text-slate-500">
+            <div className="text-center text-sm text-muted-foreground">
               Chưa có tài khoản?{" "}
-              <Link href="/signup" className="text-blue-600 hover:underline">
+              <Link href="/signup" className="text-primary hover:underline">
                 Đăng ký ngay
               </Link>
             </div>
