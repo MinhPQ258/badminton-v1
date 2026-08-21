@@ -9,12 +9,14 @@ export default function AttendanceModal({
   session, 
   rsvps, 
   attendances, 
+  guests,
   isCreator, 
   currentUserId 
 }: { 
   session: any, 
   rsvps: any[], 
   attendances: any[], 
+  guests: any[],
   isCreator: boolean, 
   currentUserId: string 
 }) {
@@ -85,6 +87,7 @@ export default function AttendanceModal({
                     sessionId={session.id} 
                     rsvps={rsvps} 
                     attendances={attendances} 
+                    guests={guests}
                     isCreator={isCreator}
                     currentUserId={currentUserId}
                   />
