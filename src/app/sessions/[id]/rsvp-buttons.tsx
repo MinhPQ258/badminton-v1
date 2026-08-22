@@ -26,23 +26,19 @@ export default function RSVPButtons({ sessionId, currentStatus }: RSVPButtonsPro
   }
 
   return (
-    <div className="flex gap-3 w-full">
-      <Button 
-        className={`flex-1 h-12 text-base font-medium justify-center transition-all duration-200 border-2 ${optimisticStatus === 'going' ? 'border-primary' : 'border-border'}`} 
-        variant={optimisticStatus === 'going' ? 'default' : 'outline'}
-        onClick={() => handleToggle('going')}
+    <div className="flex items-center gap-4 w-full px-2">
+      <span className="text-sm font-medium whitespace-nowrap text-foreground">Xác nhận:</span>
+      <select 
+        value={optimisticStatus || ""}
+        onChange={(e) => handleToggle(e.target.value as any)}
         disabled={isPending}
+        className="flex-1 h-12 rounded-lg border border-border bg-card px-4 py-2 text-base font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm appearance-none cursor-pointer"
       >
-        {isPending && optimisticStatus !== 'going' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <CheckCircle2 className="mr-2 h-5 w-5" />} Tham gia
-      </Button>
-      <Button 
-        className={`flex-1 h-12 text-base font-medium justify-center transition-all duration-200 border-2 ${optimisticStatus === 'not_going' ? 'border-destructive' : 'border-border'}`} 
-        variant={optimisticStatus === 'not_going' ? 'destructive' : 'outline'}
-        onClick={() => handleToggle('not_going')}
-        disabled={isPending}
-      >
-        {isPending && optimisticStatus !== 'not_going' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <XCircle className="mr-2 h-5 w-5" />} Bận
-      </Button>
+        <option value="" disabled>-- Chọn --</option>
+        <option value="going">Tham gia (Có mặt)</option>
+        <option value="not_going">Bận (Vắng mặt)</option>
+      </select>
+      {isPending && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground shrink-0" />}
     </div>
   )
 }

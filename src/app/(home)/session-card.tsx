@@ -24,10 +24,12 @@ interface SessionCardProps {
   myStatus: string | null
   currentUserId: string
   rsvpUsers: Array<{ user_id: string; status: string; profiles?: { full_name: string } | null }>
+  attendances?: Array<{ user_id: string; attended: boolean; profiles?: { full_name: string } | null }>
+  guests?: Array<{ id: string; name: string }>
   variant?: "upcoming" | "recent"
 }
 
-export default function SessionCard({ session, goingCount, myStatus, currentUserId, rsvpUsers, variant = "upcoming" }: SessionCardProps) {
+export default function SessionCard({ session, goingCount, myStatus, currentUserId, rsvpUsers, attendances = [], guests = [], variant = "upcoming" }: SessionCardProps) {
   const router = useRouter()
   const [showActions, setShowActions] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -166,7 +168,7 @@ export default function SessionCard({ session, goingCount, myStatus, currentUser
 
         <ActionSheet open={showActions} onClose={() => setShowActions(false)} items={actionItems} title={`Buổi ${new Date(session.start_time).toLocaleDateString('vi-VN')}`} />
         <ConfirmDialog open={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} onConfirm={handleDelete} title="Xóa buổi đánh" description="Bạn có chắc muốn xóa buổi đánh này? Thao tác này không thể hoàn tác." confirmText="Xóa" loading={deleting} />
-        <ParticipantsModal open={showParticipants} onClose={() => setShowParticipants(false)} rsvpUsers={rsvpUsers} totalAttendees={session.total_attendees || 0} sessionDate={session.start_time} />
+        <ParticipantsModal open={showParticipants} onClose={() => setShowParticipants(false)} rsvpUsers={rsvpUsers} attendances={attendances} guests={guests} totalAttendees={session.total_attendees || 0} sessionDate={session.start_time} />
       </>
     )
   }
@@ -212,7 +214,7 @@ export default function SessionCard({ session, goingCount, myStatus, currentUser
 
       <ActionSheet open={showActions} onClose={() => setShowActions(false)} items={actionItems} title={`Buổi ${formatDate(session.start_time)}`} />
       <ConfirmDialog open={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} onConfirm={handleDelete} title="Xóa buổi đánh" description="Bạn có chắc muốn xóa buổi đánh này? Thao tác này không thể hoàn tác." confirmText="Xóa" loading={deleting} />
-      <ParticipantsModal open={showParticipants} onClose={() => setShowParticipants(false)} rsvpUsers={rsvpUsers} totalAttendees={session.total_attendees || 0} sessionDate={session.start_time} />
+      <ParticipantsModal open={showParticipants} onClose={() => setShowParticipants(false)} rsvpUsers={rsvpUsers} attendances={attendances} guests={guests} totalAttendees={session.total_attendees || 0} sessionDate={session.start_time} />
     </>
   )
 }

@@ -78,8 +78,8 @@ export default function MemberActions({
             <Button 
               onClick={handleQuickCheckIn} 
               disabled={isPending}
-              variant={hasAttended ? "outline" : "default"}
-              className={`w-full h-11 text-sm font-medium transition-all ${hasAttended ? "border-green-500 text-primary bg-green-50 hover:bg-primary/20" : "bg-blue-600 hover:bg-blue-700 shadow-sm"}`}
+              variant={hasAttended ? "secondary" : "default"}
+              className={`w-full h-11 text-sm font-medium transition-all ${hasAttended ? "bg-secondary text-secondary-foreground hover:bg-secondary/80" : "bg-primary hover:bg-primary/90 shadow-sm"}`}
             >
               {isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <UserCheck className="h-4 w-4 mr-2" />}
               {hasAttended ? "Đã điểm danh thành công" : "Điểm danh ngay"}
@@ -129,6 +129,7 @@ export default function MemberActions({
                     isCreator={isCreator}
                     currentUserId={currentUserId}
                     isSettled={isSettled}
+                    onClose={closeModal}
                   />
                 </div>
               )}
@@ -152,11 +153,13 @@ export default function MemberActions({
               )}
             </div>
             
-            <div className="p-4 border-t border-border bg-secondary shrink-0">
-              <Button onClick={closeModal} className="w-full" variant="outline">
-                Đóng
-              </Button>
-            </div>
+            {activeTab === 'rsvp' && (
+              <div className="p-4 border-t border-border bg-secondary shrink-0">
+                <Button onClick={closeModal} className="w-full" variant="outline">
+                  Đóng
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}

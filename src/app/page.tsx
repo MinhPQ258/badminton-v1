@@ -22,6 +22,21 @@ export default async function DashboardPage() {
     
   const rsvpsData = rsvps || []
 
+  const { data: attendances } = await supabase
+    .from('session_attendances')
+    .select('session_id, user_id, attended, profiles ( full_name )')
+    .in('session_id', allSessionIds)
+    .eq('attended', true)
+
+  const attendancesData = attendances || []
+
+  const { data: guests } = await supabase
+    .from('session_guests')
+    .select('id, session_id, name')
+    .in('session_id', allSessionIds)
+
+  const guestsData = guests || []
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 w-full">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -55,6 +70,9 @@ export default async function DashboardPage() {
                 const myStatus = rsvpsData.find(r => r.session_id === session.id && r.user_id === user?.id)?.status || null
                 const sessionRsvps = rsvpsData.filter(r => r.session_id === session.id)
                 
+                const sessionAttendances = attendancesData.filter(a => a.session_id === session.id)
+                const sessionGuests = guestsData.filter(g => g.session_id === session.id)
+                
                 return (
                   <SessionCard
                     key={session.id}
@@ -63,6 +81,8 @@ export default async function DashboardPage() {
                     myStatus={myStatus}
                     currentUserId={user?.id || ""}
                     rsvpUsers={sessionRsvps as any}
+                    attendances={sessionAttendances as any}
+                    guests={sessionGuests as any}
                     variant="upcoming"
                   />
                 )
@@ -93,6 +113,9 @@ export default async function DashboardPage() {
                     const goingCount = rsvpsData.filter(r => r.session_id === session.id && r.status === 'going').length
                     const sessionRsvps = rsvpsData.filter(r => r.session_id === session.id)
                     
+                    const sessionAttendances = attendancesData.filter(a => a.session_id === session.id)
+                    const sessionGuests = guestsData.filter(g => g.session_id === session.id)
+                    
                     return (
                       <SessionCard
                         key={session.id}
@@ -101,6 +124,8 @@ export default async function DashboardPage() {
                         myStatus={null}
                         currentUserId={user?.id || ""}
                         rsvpUsers={sessionRsvps as any}
+                        attendances={sessionAttendances as any}
+                        guests={sessionGuests as any}
                         variant="recent"
                       />
                     )

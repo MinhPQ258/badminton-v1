@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { CalendarDays, Clock, MapPin, ArrowLeft } from "lucide-react"
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
 
 export default function NewSessionPage() {
   const router = useRouter()
@@ -18,25 +20,24 @@ export default function NewSessionPage() {
   const defaultStartDate = new Date()
   defaultStartDate.setHours(18, 0, 0, 0)
   
-  const [startTime, setStartTime] = useState(
-    new Date(defaultStartDate.getTime() - defaultStartDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
-  )
+  const [startTime, setStartTime] = useState<Date | null>(defaultStartDate)
   
   // End time defaults to 2 hours after start time
-  const getEndTime = (start: string) => {
-    if (!start) return ""
+  const getEndTime = (start: Date | null) => {
+    if (!start) return null
     const d = new Date(start)
     d.setHours(d.getHours() + 2)
-    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+    return d
   }
   
-  const [endTime, setEndTime] = useState(getEndTime(startTime))
+  const [endTime, setEndTime] = useState<Date | null>(getEndTime(defaultStartDate))
   const [location, setLocation] = useState("")
 
-  const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newStart = e.target.value
-    setStartTime(newStart)
-    setEndTime(getEndTime(newStart))
+  const handleStartTimeChange = (date: Date | null) => {
+    setStartTime(date)
+    if (date) {
+      setEndTime(getEndTime(date))
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -45,8 +46,15 @@ export default function NewSessionPage() {
     setError(null)
     
     const formData = new FormData()
-    formData.append("start_time", startTime)
-    formData.append("end_time", endTime)
+    
+    // Convert dates back to local ISO string format that the action expects
+    const formatLocalISO = (d: Date | null) => {
+      if (!d) return ""
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+    }
+    
+    formData.append("start_time", formatLocalISO(startTime))
+    formData.append("end_time", formatLocalISO(endTime))
     formData.append("location", location)
 
     const result = await createSessionAction(formData)
@@ -85,23 +93,33 @@ export default function NewSessionPage() {
                 <label className="text-sm font-medium leading-none flex items-center gap-2" htmlFor="start_time">
                   <Clock className="h-4 w-4 text-muted-foreground" /> Thời gian bắt đầu
                 </label>
-                <Input
+                <DatePicker
                   id="start_time"
-                  type="datetime-local"
-                  value={startTime}
+                  selected={startTime}
                   onChange={handleStartTimeChange}
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  timeCaption="Giờ"
+                  dateFormat="dd/MM/yyyy HH:mm"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   required
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 flex flex-col">
                 <label className="text-sm font-medium leading-none flex items-center gap-2" htmlFor="end_time">
                   <Clock className="h-4 w-4 text-muted-foreground" /> Thời gian kết thúc
                 </label>
-                <Input
+                <DatePicker
                   id="end_time"
-                  type="datetime-local"
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
+                  selected={endTime}
+                  onChange={(date: Date | null) => setEndTime(date)}
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  timeCaption="Giờ"
+                  dateFormat="dd/MM/yyyy HH:mm"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   required
                 />
                 <p className="text-xs text-muted-foreground mt-1">Mặc định kéo dài 2 tiếng</p>

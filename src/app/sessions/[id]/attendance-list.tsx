@@ -12,7 +12,8 @@ export default function AttendanceList({
   guests,
   isCreator,
   currentUserId,
-  isSettled
+  isSettled,
+  onClose
 }: { 
   sessionId: string, 
   rsvps: any[], 
@@ -21,19 +22,33 @@ export default function AttendanceList({
   isCreator: boolean,
   currentUserId: string,
   isSettled?: boolean
+  onClose?: () => void
 }) {
   const [isPending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement>(null)
   
+  // Local state for checkboxes
+  const initialAttendances = attendances.reduce((acc, a) => {
+    if (a.attended) acc[a.user_id] = true
+    return acc
+  }, {} as Record<string, boolean>)
+  
+  const [localAttendances, setLocalAttendances] = useState<Record<string, boolean>>(initialAttendances)
+  const [hasChanges, setHasChanges] = useState(false)
+  
   const [optimisticAttendances, addOptimisticAttendance] = useOptimistic(
     attendances,
-    (state, { userId, attended }: { userId: string, attended: boolean }) => {
-      const exists = state.some(a => a.user_id === userId)
-      if (exists) {
-        return state.map(a => a.user_id === userId ? { ...a, attended } : a)
-      } else {
-        return [...state, { user_id: userId, attended }]
-      }
+    (state, action: { type: 'batch', payload: Record<string, boolean> }) => {
+      let newState = [...state]
+      Object.entries(action.payload).forEach(([userId, attended]) => {
+        const exists = newState.some(a => a.user_id === userId)
+        if (exists) {
+          newState = newState.map(a => a.user_id === userId ? { ...a, attended } : a)
+        } else {
+          newState = [...newState, { user_id: userId, attended }]
+        }
+      })
+      return newState
     }
   )
 
@@ -73,13 +88,37 @@ export default function AttendanceList({
     })
   }
 
+  const handleSave = () => {
+    if (!hasChanges) {
+      onClose?.()
+      return
+    }
+    
+    startTransition(async () => {
+      addOptimisticAttendance({ type: 'batch', payload: localAttendances })
+      
+      // Find what changed
+      const promises = []
+      for (const [userId, attended] of Object.entries(localAttendances)) {
+        const original = initialAttendances[userId] || false
+        if (original !== attended) {
+          promises.push(toggleAttendanceAction(sessionId, userId, attended))
+        }
+      }
+      
+      await Promise.all(promises)
+      setHasChanges(false)
+      onClose?.()
+    })
+  }
+
   return (
     <div className="space-y-4">
       {/* Danh sách thành viên chính thức */}
       <div className="space-y-3">
         <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Thành viên ({goingUsers.length})</h4>
         {goingUsers.map(rsvp => {
-          const hasAttended = optimisticAttendances.some(a => a.user_id === rsvp.user_id && a.attended)
+          const hasAttended = localAttendances[rsvp.user_id] || false
           const canEdit = !isSettled && (isCreator || currentUserId === rsvp.user_id)
           
           return (
@@ -91,14 +130,12 @@ export default function AttendanceList({
               <input 
                 type="checkbox" 
                 className={`h-5 w-5 rounded border-border transition-colors ${isCreator ? 'text-amber-600 focus:ring-amber-500' : 'text-primary focus:ring-green-500'} disabled:opacity-50`}
-                checked={hasAttended}
-                disabled={!canEdit}
+                checked={localAttendances[rsvp.user_id] || false}
+                disabled={!canEdit || isPending}
                 onChange={(e) => {
                   const checked = e.target.checked
-                  startTransition(async () => {
-                    addOptimisticAttendance({ userId: rsvp.user_id, attended: checked })
-                    await toggleAttendanceAction(sessionId, rsvp.user_id, checked)
-                  })
+                  setLocalAttendances(prev => ({ ...prev, [rsvp.user_id]: checked }))
+                  setHasChanges(true)
                 }}
               />
             </label>
@@ -155,6 +192,25 @@ export default function AttendanceList({
             </button>
           </form>
         )}
+      </div>
+      
+      {/* Nút Lưu */}
+      <div className="-mx-4 -mb-4 mt-4 p-4 border-t border-border bg-secondary flex justify-end gap-2">
+        <button 
+          onClick={onClose}
+          type="button" 
+          className="px-4 py-2 border border-border rounded-md text-sm font-medium hover:bg-card transition-colors bg-card"
+        >
+          Hủy
+        </button>
+        <button 
+          onClick={handleSave}
+          disabled={isPending}
+          type="button" 
+          className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center"
+        >
+          {isPending ? "Đang lưu..." : "Lưu"}
+        </button>
       </div>
     </div>
   )

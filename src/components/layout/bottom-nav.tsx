@@ -7,8 +7,11 @@ import { Home, Users, Plus, Receipt, Settings } from "lucide-react"
 export default function BottomNav() {
   const pathname = usePathname()
 
-  // Hide on auth pages
-  if (pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/auth')) {
+  // Hide on auth pages and session detail pages
+  const isAuth = pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/auth')
+  const isSessionDetail = pathname.startsWith('/sessions/') && pathname !== '/sessions/new' && !pathname.endsWith('/edit')
+  
+  if (isAuth || isSessionDetail) {
     return null
   }
 

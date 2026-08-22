@@ -10,12 +10,14 @@ export default function ExpenseManager({
   sessionId, 
   expenses, 
   isCreator,
-  status 
+  status,
+  canSettle = false
 }: { 
   sessionId: string, 
   expenses: any[],
   isCreator: boolean,
-  status: string
+  status: string,
+  canSettle?: boolean
 }) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -100,7 +102,7 @@ export default function ExpenseManager({
       {isCreator && !isSettled && (
         <div className="flex justify-between items-center pb-2 border-b border-border">
           <span className="text-sm text-muted-foreground font-medium">Danh sách các khoản chi</span>
-          <Button onClick={openModal} size="sm" className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={openModal} size="sm" variant="secondary" className="hover:bg-secondary/80">
             <Plus className="h-4 w-4 mr-1" /> Thêm khoản chi
           </Button>
         </div>
@@ -131,7 +133,7 @@ export default function ExpenseManager({
               </div>
             </div>
           ))}
-          <div className="flex justify-between items-center p-3 bg-primary/10/50 rounded-lg font-bold text-blue-900 border border-blue-100 mt-2 transition-all">
+          <div className="flex justify-between items-center p-3 bg-blue-900 rounded-lg font-bold text-white border border-blue-800 mt-2 transition-all">
             <span>Tổng cộng:</span>
             <span>{totalCost.toLocaleString('vi-VN')} đ</span>
           </div>
@@ -186,11 +188,11 @@ export default function ExpenseManager({
         <div className="pt-4 border-t border-border mt-4">
           <Button 
             onClick={handleSettle}
-            disabled={isPending}
-            className="w-full bg-blue-600 hover:bg-blue-700 font-medium py-6 rounded-xl shadow-sm hover:shadow transition-all"
+            disabled={isPending || !canSettle}
+            className="w-full bg-blue-600 hover:bg-blue-700 font-medium py-6 rounded-xl shadow-sm hover:shadow transition-all disabled:bg-muted disabled:text-muted-foreground"
           >
             <CheckCircle className="h-5 w-5 mr-2" />
-            {isPending ? "Đang xử lý..." : "Chốt sổ & Tính tiền"}
+            {isPending ? "Đang xử lý..." : (!canSettle ? "Chưa đến thời gian chốt sổ" : "Chốt sổ & Tính tiền")}
           </Button>
           <p className="text-xs text-muted-foreground text-center mt-3 leading-relaxed">
             * Sau khi chốt sổ, hệ thống sẽ chia đều tiền cho số người thực tế có mặt. Không thể thêm sửa xóa chi phí nữa.

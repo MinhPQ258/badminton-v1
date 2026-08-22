@@ -9,6 +9,11 @@ interface DebtItem {
   totalDue: number
   totalPaid: number
   debt: number
+  details?: Array<{
+    sessionId: string
+    amount: number
+    sessionDate: string
+  }>
 }
 
 interface SessionExpense {
@@ -222,20 +227,35 @@ export default function ExpensesClient({ profiles, initialDebts, initialSessions
           {sortedDebts.map(debt => {
             const name = getName(debt.userId)
             return (
-              <div key={debt.userId} className="bg-card rounded-xl border border-border p-3.5 flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full ${getColor(name)} flex items-center justify-center text-white text-sm font-bold shrink-0`}>
-                  {getInitial(name)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{name}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-muted-foreground">Phải đóng: {formatCurrency(debt.totalDue)}</span>
+              <div key={debt.userId} className="bg-card rounded-xl border border-border overflow-hidden">
+                <div className="p-3.5 flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-full ${getColor(name)} flex items-center justify-center text-white text-sm font-bold shrink-0`}>
+                    {getInitial(name)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-muted-foreground">Phải đóng: {formatCurrency(debt.totalDue)}</span>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-bold text-destructive">{formatCurrency(debt.debt)}</p>
+                    <p className="text-[10px] text-muted-foreground">chưa đóng</p>
                   </div>
                 </div>
-                <div className="text-right shrink-0">
-                  <p className="text-sm font-bold text-destructive">{formatCurrency(debt.debt)}</p>
-                  <p className="text-[10px] text-muted-foreground">chưa đóng</p>
-                </div>
+                
+                {debt.details && debt.details.length > 0 && (
+                  <div className="border-t border-border bg-secondary/30">
+                    {debt.details.map((detail, idx) => (
+                      <div key={idx} className={`px-4 py-2 flex justify-between items-center text-xs ${
+                        idx < debt.details!.length - 1 ? 'border-b border-border/50' : ''
+                      }`}>
+                        <span className="text-muted-foreground">Buổi {formatDate(detail.sessionDate)}</span>
+                        <span className="font-medium text-destructive">{formatCurrency(detail.amount)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )
           })}

@@ -12,11 +12,20 @@ interface ParticipantsModalProps {
     status: string
     profiles?: { full_name: string } | null
   }>
+  attendances?: Array<{
+    user_id: string
+    attended: boolean
+    profiles?: { full_name: string } | null
+  }>
+  guests?: Array<{
+    id: string
+    name: string
+  }>
   totalAttendees: number
   sessionDate: string
 }
 
-export default function ParticipantsModal({ open, onClose, rsvpUsers, totalAttendees, sessionDate }: ParticipantsModalProps) {
+export default function ParticipantsModal({ open, onClose, rsvpUsers, attendances = [], guests = [], totalAttendees, sessionDate }: ParticipantsModalProps) {
   const [tab, setTab] = useState<"rsvp" | "attendance">("rsvp")
 
   const goingUsers = rsvpUsers.filter(r => r.status === "going")
@@ -119,15 +128,45 @@ export default function ParticipantsModal({ open, onClose, rsvpUsers, totalAtten
             )}
           </>
         ) : (
-          <div className="py-8 text-center">
-            <CheckCircle2 className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">
-              {totalAttendees > 0 
-                ? `${totalAttendees} người đã điểm danh` 
-                : "Chưa có dữ liệu điểm danh"
-              }
-            </p>
-            <p className="text-xs text-muted-foreground/60 mt-1">Xem chi tiết tại trang buổi đánh</p>
+          <div className="space-y-1 mt-1">
+            {attendances.length > 0 || guests.length > 0 ? (
+              <>
+                {attendances.map((att) => {
+                  const name = att.profiles?.full_name || "Không rõ"
+                  return (
+                    <div key={att.user_id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-secondary/60 transition-colors">
+                      <div className={`w-8 h-8 rounded-full ${getColor(name)} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
+                        {getInitial(name)}
+                      </div>
+                      <span className="flex-1 text-sm font-medium text-foreground truncate">{name}</span>
+                      <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Đã điểm danh
+                      </span>
+                    </div>
+                  )
+                })}
+                {guests.map((guest) => {
+                  const name = guest.name
+                  return (
+                    <div key={guest.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-secondary/60 transition-colors">
+                      <div className={`w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold shrink-0`}>
+                        {getInitial(name)}
+                      </div>
+                      <span className="flex-1 text-sm font-medium text-foreground truncate">{name} (Khách)</span>
+                      <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Đã điểm danh
+                      </span>
+                    </div>
+                  )
+                })}
+              </>
+            ) : (
+              <div className="py-8 text-center">
+                <CheckCircle2 className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Chưa có ai điểm danh</p>
+                <p className="text-xs text-muted-foreground/60 mt-1">Xem chi tiết tại trang buổi đánh</p>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -31,6 +31,7 @@ export const viewport: Viewport = {
 };
 
 import Navbar from "@/components/layout/navbar";
+import ConditionalNavbar from "@/components/layout/conditional-navbar";
 import BottomNav from "@/components/layout/bottom-nav";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -43,7 +44,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="min-h-full flex flex-col relative bg-background text-foreground transition-colors duration-300">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <Navbar />
+          <ConditionalNavbar>
+            <Navbar />
+          </ConditionalNavbar>
           <main className="flex-1 flex flex-col pb-20">
             {children}
           </main>

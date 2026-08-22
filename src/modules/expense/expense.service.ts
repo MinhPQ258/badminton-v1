@@ -63,13 +63,20 @@ export async function getDebtSummary(fromDate?: string, toDate?: string) {
     const payments = await expenseModel.getDebtSummary(fromDate, toDate);
     
     // Aggregate by user_id
-    const userMap = new Map<string, { totalDue: number; totalPaid: number }>();
+    const userMap = new Map<string, { totalDue: number; totalPaid: number; details: any[] }>();
     
     for (const payment of payments) {
-      const existing = userMap.get(payment.user_id) || { totalDue: 0, totalPaid: 0 };
+      const existing = userMap.get(payment.user_id) || { totalDue: 0, totalPaid: 0, details: [] };
       existing.totalDue += payment.amount_due || 0;
       if (payment.payment_status === 'paid') {
         existing.totalPaid += payment.amount_due || 0;
+      } else if (payment.payment_status === 'unpaid' && (payment.amount_due || 0) > 0) {
+        const sessionData = Array.isArray(payment.sessions) ? payment.sessions[0] : payment.sessions;
+        existing.details.push({
+          sessionId: payment.session_id,
+          amount: payment.amount_due,
+          sessionDate: sessionData?.start_time
+        })
       }
       userMap.set(payment.user_id, existing);
     }
@@ -79,6 +86,7 @@ export async function getDebtSummary(fromDate?: string, toDate?: string) {
       totalDue: data.totalDue,
       totalPaid: data.totalPaid,
       debt: data.totalDue - data.totalPaid,
+      details: data.details,
     }));
   } catch (error) {
     return [];

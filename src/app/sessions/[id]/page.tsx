@@ -34,6 +34,8 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
   
   // Chỉ hiển thị cho admin, hoặc hiển thị cho thành viên nếu đã chốt sổ (settled)
   const showExpenses = isCreator || session.status === 'settled'
+  
+  const canSettle = new Date() > new Date(session.end_time)
 
   return (
     <div className="w-full flex flex-col h-[calc(100dvh-4rem)] overflow-hidden bg-secondary">
@@ -83,6 +85,7 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
                   expenses={expenses} 
                   isCreator={isCreator} 
                   status={session.status} 
+                  canSettle={canSettle}
                 />
               </CardContent>
             </Card>
