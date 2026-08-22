@@ -80,7 +80,7 @@ export default function AttendanceList({
   }
 
   const handleRemoveGuest = (guestId: string) => {
-    if (isSettled || !confirm("Bạn có chắc muốn xóa khách này khỏi danh sách?")) return
+    if (!confirm("Bạn có chắc muốn xóa khách này khỏi danh sách?")) return
     
     startTransition(async () => {
       updateOptimisticGuests({ type: 'delete', payload: guestId })
@@ -119,7 +119,7 @@ export default function AttendanceList({
         <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Thành viên ({goingUsers.length})</h4>
         {goingUsers.map(rsvp => {
           const hasAttended = localAttendances[rsvp.user_id] || false
-          const canEdit = !isSettled && (isCreator || currentUserId === rsvp.user_id)
+          const canEdit = isCreator
           
           return (
             <label key={rsvp.user_id} className={`flex justify-between items-center p-3 rounded-lg border transition-all duration-200 ${canEdit ? 'cursor-pointer' : 'cursor-default'} ${hasAttended ? (isCreator ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-primary') : 'bg-card hover:bg-secondary'}`}>
@@ -162,7 +162,7 @@ export default function AttendanceList({
               <span className="font-medium text-amber-900">{guest.name}</span>
             </div>
             
-            {isCreator && !isSettled && (
+            {isCreator && (
               <button 
                 type="button"
                 onClick={() => handleRemoveGuest(guest.id)}
@@ -175,7 +175,7 @@ export default function AttendanceList({
           </div>
         ))}
 
-        {isCreator && !isSettled && (
+        {isCreator && (
           <form ref={formRef} action={handleAddGuest} className="flex gap-2 mt-2">
             <input 
               type="text" 

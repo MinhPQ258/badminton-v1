@@ -21,7 +21,10 @@ export default function MemberActions({
   isCreator: boolean, 
   currentUserId: string 
 }) {
-  const [activeTab, setActiveTab] = useState<'rsvp' | 'attendance'>('attendance')
+  const isEnded = new Date() > new Date(session.end_time)
+  const showAttendanceTab = isCreator || isEnded
+  
+  const [activeTab, setActiveTab] = useState<'rsvp' | 'attendance'>('rsvp')
   const [isPending, setIsPending] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -34,12 +37,6 @@ export default function MemberActions({
   
   const hasAttended = attendances.some(a => a.user_id === currentUserId && a.attended)
   const isSettled = session.status === 'settled'
-
-  const handleQuickCheckIn = async () => {
-    setIsPending(true)
-    await toggleAttendanceAction(session.id, currentUserId, !hasAttended)
-    setIsPending(false)
-  }
 
   const openModal = () => {
     setIsModalOpen(true)
@@ -67,25 +64,15 @@ export default function MemberActions({
             </div>
             <div>
               <p className="text-base font-medium text-foreground">Chi tiết thành viên</p>
-              <p className="text-sm text-muted-foreground">{totalRsvp} Đăng ký • {totalAttended} Đã điểm danh</p>
+              <p className="text-sm text-muted-foreground">
+                {totalRsvp} Đăng ký
+                {showAttendanceTab && ` • ${totalAttended} Đã điểm danh`}
+              </p>
             </div>
           </div>
           <span className="text-sm font-medium text-primary group-hover:underline pr-1">Xem danh sách</span>
         </button>
 
-        {!isSettled && (
-          <div className="p-4 bg-secondary/50">
-            <Button 
-              onClick={handleQuickCheckIn} 
-              disabled={isPending}
-              variant={hasAttended ? "secondary" : "default"}
-              className={`w-full h-11 text-sm font-medium transition-all ${hasAttended ? "bg-secondary text-secondary-foreground hover:bg-secondary/80" : "bg-primary hover:bg-primary/90 shadow-sm"}`}
-            >
-              {isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <UserCheck className="h-4 w-4 mr-2" />}
-              {hasAttended ? "Đã điểm danh thành công" : "Điểm danh ngay"}
-            </Button>
-          </div>
-        )}
       </div>
 
       {isModalOpen && (
@@ -100,17 +87,19 @@ export default function MemberActions({
             
             <div className="flex border-b border-border shrink-0">
               <button 
-                className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'attendance' ? 'border-blue-600 text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
-                onClick={() => setActiveTab('attendance')}
-              >
-                Điểm danh ({totalAttended})
-              </button>
-              <button 
                 className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'rsvp' ? 'border-blue-600 text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
                 onClick={() => setActiveTab('rsvp')}
               >
-                Đăng ký tham gia ({totalRsvp})
+                Đăng ký ({totalRsvp})
               </button>
+              {showAttendanceTab && (
+                <button 
+                  className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'attendance' ? 'border-blue-600 text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                  onClick={() => setActiveTab('attendance')}
+                >
+                  Điểm danh ({totalAttended})
+                </button>
+              )}
             </div>
 
             <div className="p-4 overflow-y-auto flex-1">
@@ -118,7 +107,7 @@ export default function MemberActions({
                 <div className="space-y-4">
                   <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
                     <p className="text-sm text-amber-800 font-medium">
-                      {isCreator ? "Quản trị viên: Có thể điểm danh cho tất cả" : "Thành viên: Chỉ có thể tự điểm danh cho chính mình"}
+                      {isCreator ? "Quản trị viên: Điểm danh thành viên thủ công" : "Danh sách điểm danh chỉ có thể được cập nhật bởi chủ buổi đánh"}
                     </p>
                   </div>
                   <AttendanceList 

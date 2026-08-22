@@ -42,6 +42,8 @@ export default function SessionCard({ session, goingCount, myStatus, currentUser
   const touchMoved = useRef(false)
 
   const isCreator = currentUserId === session.created_by
+  const isEnded = new Date() > new Date(session.end_time)
+  const showAttendanceTab = isCreator || isEnded
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('vi-VN', {
@@ -158,9 +160,11 @@ export default function SessionCard({ session, goingCount, myStatus, currentUser
                 <button onClick={handleParticipantsClick} className="flex items-center gap-1 hover:text-primary transition-colors" title="Xem danh sách">
                   <Users className="w-3 h-3 text-muted-foreground" /> {goingCount}
                 </button>
-                <button onClick={handleParticipantsClick} className="flex items-center gap-1 hover:text-primary transition-colors" title="Xem danh sách">
-                  <CheckCircle2 className="w-3 h-3 text-primary" /> {session.total_attendees || 0}
-                </button>
+                {showAttendanceTab && (
+                  <button onClick={handleParticipantsClick} className="flex items-center gap-1 hover:text-primary transition-colors" title="Xem danh sách">
+                    <CheckCircle2 className="w-3 h-3 text-primary" /> {session.total_attendees || 0}
+                  </button>
+                )}
               </div>
             </div>
           </Link>
@@ -168,7 +172,7 @@ export default function SessionCard({ session, goingCount, myStatus, currentUser
 
         <ActionSheet open={showActions} onClose={() => setShowActions(false)} items={actionItems} title={`Buổi ${new Date(session.start_time).toLocaleDateString('vi-VN')}`} />
         <ConfirmDialog open={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} onConfirm={handleDelete} title="Xóa buổi đánh" description="Bạn có chắc muốn xóa buổi đánh này? Thao tác này không thể hoàn tác." confirmText="Xóa" loading={deleting} />
-        <ParticipantsModal open={showParticipants} onClose={() => setShowParticipants(false)} rsvpUsers={rsvpUsers} attendances={attendances} guests={guests} totalAttendees={session.total_attendees || 0} sessionDate={session.start_time} />
+        <ParticipantsModal open={showParticipants} onClose={() => setShowParticipants(false)} rsvpUsers={rsvpUsers} attendances={attendances} guests={guests} totalAttendees={session.total_attendees || 0} sessionDate={session.start_time} showAttendanceTab={showAttendanceTab} />
       </>
     )
   }
@@ -201,11 +205,15 @@ export default function SessionCard({ session, goingCount, myStatus, currentUser
                   <Users className="w-4 h-4 text-primary" />
                   <span className="font-medium text-foreground">{goingCount} <span className="font-normal text-muted-foreground text-xs">đăng ký</span></span>
                 </button>
-                <div className="h-4 w-px bg-slate-300"></div>
-                <button onClick={handleParticipantsClick} className="flex items-center gap-1 hover:text-primary transition-colors" title="Xem danh sách điểm danh">
-                  <CheckCircle2 className="w-4 h-4 text-primary" />
-                  <span className="font-medium text-foreground">{session.total_attendees || 0} <span className="font-normal text-muted-foreground text-xs">điểm danh</span></span>
-                </button>
+                {showAttendanceTab && (
+                  <>
+                    <div className="h-4 w-px bg-slate-300"></div>
+                    <button onClick={handleParticipantsClick} className="flex items-center gap-1 hover:text-primary transition-colors" title="Xem danh sách điểm danh">
+                      <CheckCircle2 className="w-4 h-4 text-primary" />
+                      <span className="font-medium text-foreground">{session.total_attendees || 0} <span className="font-normal text-muted-foreground text-xs">điểm danh</span></span>
+                    </button>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -214,7 +222,7 @@ export default function SessionCard({ session, goingCount, myStatus, currentUser
 
       <ActionSheet open={showActions} onClose={() => setShowActions(false)} items={actionItems} title={`Buổi ${formatDate(session.start_time)}`} />
       <ConfirmDialog open={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} onConfirm={handleDelete} title="Xóa buổi đánh" description="Bạn có chắc muốn xóa buổi đánh này? Thao tác này không thể hoàn tác." confirmText="Xóa" loading={deleting} />
-      <ParticipantsModal open={showParticipants} onClose={() => setShowParticipants(false)} rsvpUsers={rsvpUsers} attendances={attendances} guests={guests} totalAttendees={session.total_attendees || 0} sessionDate={session.start_time} />
+      <ParticipantsModal open={showParticipants} onClose={() => setShowParticipants(false)} rsvpUsers={rsvpUsers} attendances={attendances} guests={guests} totalAttendees={session.total_attendees || 0} sessionDate={session.start_time} showAttendanceTab={showAttendanceTab} />
     </>
   )
 }

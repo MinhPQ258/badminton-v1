@@ -58,6 +58,22 @@ export async function settleSession(sessionId: string, userId: string) {
   }
 }
 
+export async function recalculateCost(sessionId: string, userId: string) {
+  const session = await getSessionById(sessionId);
+  if (!session || session.created_by !== userId) {
+    throw new AppError("Chỉ người tạo buổi đánh mới được tính lại chi phí", 403);
+  }
+  if (session.status !== 'settled') {
+    throw new AppError("Buổi đánh chưa chốt sổ nên không thể tính lại", 400);
+  }
+
+  try {
+    await expenseModel.recalculateSessionCost(sessionId, userId);
+  } catch (error) {
+    throw new AppError("Lỗi khi tính toán lại chi phí", 500);
+  }
+}
+
 export async function getDebtSummary(fromDate?: string, toDate?: string) {
   try {
     const payments = await expenseModel.getDebtSummary(fromDate, toDate);

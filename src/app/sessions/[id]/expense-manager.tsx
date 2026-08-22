@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition, useRef, useOptimistic } from "react"
-import { addExpenseAction, deleteExpenseAction, settleSessionAction } from "@/app/actions/expense"
+import { addExpenseAction, deleteExpenseAction, settleSessionAction, recalculateCostAction } from "@/app/actions/expense"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Trash2, Plus, CheckCircle, Receipt, X } from "lucide-react"
@@ -84,10 +84,20 @@ export default function ExpenseManager({
   }
 
   const handleSettle = () => {
-    if (confirm("Chốt sổ sẽ khóa buổi đánh: Không cho thêm chi phí, không cho sửa điểm danh nữa. Bạn có chắc chắn?")) {
+    if (confirm("Chốt sổ sẽ khóa buổi đánh: Không cho thêm chi phí. Tuy nhiên, nếu điểm danh nhầm bạn vẫn có thể tính lại. Bạn có chắc chắn?")) {
       startTransition(async () => {
         const result = await settleSessionAction(sessionId)
         if (!result?.success) setError(result?.error || "Lỗi")
+      })
+    }
+  }
+
+  const handleRecalculate = () => {
+    if (confirm("Hệ thống sẽ tính lại số tiền chia đều dựa trên danh sách điểm danh và các khoản chi hiện tại. Bạn có chắc chắn?")) {
+      startTransition(async () => {
+        const result = await recalculateCostAction(sessionId)
+        if (!result?.success) setError(result?.error || "Lỗi")
+        else alert("Đã tính toán lại thành công!")
       })
     }
   }
@@ -195,7 +205,25 @@ export default function ExpenseManager({
             {isPending ? "Đang xử lý..." : (!canSettle ? "Chưa đến thời gian chốt sổ" : "Chốt sổ & Tính tiền")}
           </Button>
           <p className="text-xs text-muted-foreground text-center mt-3 leading-relaxed">
-            * Sau khi chốt sổ, hệ thống sẽ chia đều tiền cho số người thực tế có mặt. Không thể thêm sửa xóa chi phí nữa.
+            * Sau khi chốt sổ, hệ thống sẽ chia đều tiền cho số người thực tế có mặt.
+          </p>
+        </div>
+      )}
+
+      {/* Nút Tính lại chi phí */}
+      {isCreator && isSettled && (
+        <div className="pt-4 border-t border-border mt-4">
+          <Button 
+            onClick={handleRecalculate}
+            disabled={isPending}
+            variant="outline"
+            className="w-full border-blue-600 text-blue-600 hover:bg-blue-50 font-medium py-6 rounded-xl transition-all disabled:opacity-50"
+          >
+            <Receipt className="h-5 w-5 mr-2" />
+            {isPending ? "Đang tính lại..." : "Tính toán lại chi phí"}
+          </Button>
+          <p className="text-xs text-muted-foreground text-center mt-3 leading-relaxed">
+            * Dùng chức năng này khi bạn lỡ điểm danh nhầm và muốn cập nhật lại bảng chia tiền.
           </p>
         </div>
       )}

@@ -23,6 +23,7 @@ interface ParticipantsModalProps {
   }>
   totalAttendees: number
   sessionDate: string
+  showAttendanceTab?: boolean
 }
 
 export default function ParticipantsModal({ open, onClose, rsvpUsers, attendances = [], guests = [], totalAttendees, sessionDate }: ParticipantsModalProps) {
@@ -50,36 +51,38 @@ export default function ParticipantsModal({ open, onClose, rsvpUsers, attendance
   return (
     <Modal open={open} onClose={onClose} title={`Buổi ${dateStr}`} size="sm">
       {/* Tab switcher */}
-      <div className="flex border-b border-border">
-        <button
-          onClick={() => setTab("rsvp")}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors relative ${
-            tab === "rsvp" ? "text-primary" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <span className="flex items-center justify-center gap-1.5">
-            <Users className="w-4 h-4" />
-            Đăng ký ({goingUsers.length})
-          </span>
-          {tab === "rsvp" && <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-primary rounded-full" />}
-        </button>
-        <button
-          onClick={() => setTab("attendance")}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors relative ${
-            tab === "attendance" ? "text-primary" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <span className="flex items-center justify-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4" />
-            Điểm danh ({totalAttendees})
-          </span>
-          {tab === "attendance" && <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-primary rounded-full" />}
-        </button>
-      </div>
+      {showAttendanceTab && (
+        <div className="flex border-b border-border">
+          <button
+            onClick={() => setTab("rsvp")}
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors relative ${
+              tab === "rsvp" ? "text-primary" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <span className="flex items-center justify-center gap-1.5">
+              <Users className="w-4 h-4" />
+              Đăng ký ({goingUsers.length})
+            </span>
+            {tab === "rsvp" && <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-primary rounded-full" />}
+          </button>
+          <button
+            onClick={() => setTab("attendance")}
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors relative ${
+              tab === "attendance" ? "text-primary" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <span className="flex items-center justify-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4" />
+              Điểm danh ({totalAttendees})
+            </span>
+            {tab === "attendance" && <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-primary rounded-full" />}
+          </button>
+        </div>
+      )}
 
       {/* Content */}
       <div className="p-4 space-y-1 max-h-[50vh] overflow-y-auto">
-        {tab === "rsvp" ? (
+        {(!showAttendanceTab || tab === "rsvp") ? (
           <>
             {goingUsers.length > 0 && (
               <div className="space-y-1">

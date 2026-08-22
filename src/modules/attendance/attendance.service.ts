@@ -3,11 +3,9 @@ import * as attendanceModel from "./attendance.model";
 import { getSessionById } from "@/modules/session/session.service";
 
 export async function toggleAttendance(sessionId: string, userId: string, attended: boolean, currentUserId: string) {
-  if (currentUserId !== userId) {
-    const session = await getSessionById(sessionId);
-    if (!session || session.created_by !== currentUserId) {
-      throw new AppError("Bạn không có quyền điểm danh hộ người khác", 403);
-    }
+  const session = await getSessionById(sessionId);
+  if (!session || session.created_by !== currentUserId) {
+    throw new AppError("Chỉ người tạo buổi đánh mới có quyền điểm danh", 403);
   }
 
   try {

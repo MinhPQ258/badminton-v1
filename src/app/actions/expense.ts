@@ -49,7 +49,21 @@ export async function settleSessionAction(sessionId: string) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new AppError("Bạn phải đăng nhập", 401)
 
+    // Call service to update status
     await expenseService.settleSession(sessionId, user.id)
+    // Also perform the actual calculation to insert payments
+    await expenseService.recalculateCost(sessionId, user.id)
+    revalidatePath(`/sessions/${sessionId}`)
+  })
+}
+
+export async function recalculateCostAction(sessionId: string) {
+  return actionWrapper(async () => {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new AppError("Bạn phải đăng nhập", 401)
+
+    await expenseService.recalculateCost(sessionId, user.id)
     revalidatePath(`/sessions/${sessionId}`)
   })
 }
