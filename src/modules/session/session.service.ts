@@ -42,3 +42,39 @@ export async function createSession(input: CreateSessionInput, userId: string) {
     throw new AppError("Lỗi khi tạo buổi đánh mới: " + error.message, 500);
   }
 }
+
+export async function deleteSession(sessionId: string, userId: string) {
+  const session = await sessionModel.findSessionById(sessionId);
+  if (!session) {
+    throw new AppError("Buổi đánh không tồn tại", 404);
+  }
+  if (session.created_by !== userId) {
+    throw new AppError("Chỉ người tạo mới được xóa buổi đánh", 403);
+  }
+  try {
+    await sessionModel.softDeleteSession(sessionId);
+  } catch (error: any) {
+    throw new AppError("Lỗi khi xóa buổi đánh: " + error.message, 500);
+  }
+}
+
+export async function updateSession(sessionId: string, input: { start_time?: string, end_time?: string, venue?: string }, userId: string) {
+  const session = await sessionModel.findSessionById(sessionId);
+  if (!session) {
+    throw new AppError("Buổi đánh không tồn tại", 404);
+  }
+  if (session.created_by !== userId) {
+    throw new AppError("Chỉ người tạo mới được chỉnh sửa buổi đánh", 403);
+  }
+  try {
+    const updateData: any = {};
+    if (input.start_time) updateData.start_time = new Date(input.start_time).toISOString();
+    if (input.end_time) updateData.end_time = new Date(input.end_time).toISOString();
+    if (input.venue) updateData.venue = input.venue;
+    
+    await sessionModel.updateSession(sessionId, updateData);
+  } catch (error: any) {
+    throw new AppError("Lỗi khi cập nhật buổi đánh: " + error.message, 500);
+  }
+}
+

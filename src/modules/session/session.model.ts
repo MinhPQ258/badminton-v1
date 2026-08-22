@@ -48,3 +48,22 @@ export async function createSession(data: { start_time: string, end_time: string
   if (error) throw error;
   return session;
 }
+
+export async function softDeleteSession(id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('sessions')
+    .update({ deleted_at: new Date().toISOString(), status: 'deleted' })
+    .eq('id', id);
+  if (error) throw error;
+}
+
+export async function updateSession(id: string, data: { start_time?: string, end_time?: string, venue?: string }) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('sessions')
+    .update({ ...data, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) throw error;
+}
+

@@ -53,3 +53,12 @@ export async function settleSessionAction(sessionId: string) {
     revalidatePath(`/sessions/${sessionId}`)
   })
 }
+
+export async function getDebtSummaryAction(fromDate?: string, toDate?: string) {
+  return await expenseService.getDebtSummary(fromDate, toDate)
+}
+
+export async function getSessionExpenseReportAction(fromDate?: string, toDate?: string) {
+  return await expenseService.getSessionExpenseReport(fromDate, toDate)
+}
+

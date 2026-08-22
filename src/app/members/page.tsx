@@ -1,6 +1,29 @@
-import { Users } from "lucide-react"
+import { createClient } from "@/lib/supabase/server"
+import { redirect } from "next/navigation"
+import { getMembersAction } from "@/app/actions/member"
+import MemberListClient from "./member-list-client"
 
-export default function MembersPage() {
+export default async function MembersPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/login")
+  }
+
+  // Lấy role của user hiện tại
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const currentUserRole = profile?.role || "member"
+
+  // Fetch danh sách thành viên
+  const result = await getMembersAction()
+  const members = result.success && result.data ? result.data : []
+
   return (
     <div className="min-h-screen bg-secondary flex flex-col">
       <header className="bg-card border-b border-border sticky top-0 z-30">
@@ -8,14 +31,13 @@ export default function MembersPage() {
           <h1 className="text-lg font-semibold text-foreground">Thành viên</h1>
         </div>
       </header>
-      <div className="flex-1 flex flex-col items-center justify-center p-4 text-center">
-        <div className="bg-blue-100 p-4 rounded-full mb-4">
-          <Users className="h-10 w-10 text-primary" />
-        </div>
-        <h2 className="text-xl font-semibold text-foreground mb-2">Quản lý thành viên</h2>
-        <p className="text-muted-foreground text-sm max-w-xs">
-          Tính năng đang được phát triển. Bạn sẽ sớm có thể xem và quản lý danh sách thành viên cố định tại đây.
-        </p>
+
+      <div className="flex-1">
+        <MemberListClient
+          members={members}
+          currentUserRole={currentUserRole}
+          currentUserId={user.id}
+        />
       </div>
     </div>
   )

@@ -2,8 +2,9 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { getUpcomingSessions, getRecentSessions } from "@/app/actions/session"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { CalendarDays, MapPin, Users, PlusCircle, ArrowRight, CheckCircle2 } from "lucide-react"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { CalendarDays, PlusCircle, ArrowRight } from "lucide-react"
+import SessionCard from "./(home)/session-card"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -16,22 +17,10 @@ export default async function DashboardPage() {
   
   const { data: rsvps } = await supabase
     .from('session_rsvps')
-    .select('session_id, user_id, status')
+    .select('session_id, user_id, status, profiles ( full_name )')
     .in('session_id', allSessionIds)
     
   const rsvpsData = rsvps || []
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    })
-  }
-
-  const getMyStatusBadge = (status: string | null) => {
-    if (status === 'going') return <span className="px-2 py-0.5 bg-primary/20 text-primary rounded text-xs font-medium border border-primary">Bạn: Tham gia</span>
-    if (status === 'not_going') return <span className="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium border border-red-200">Bạn: Bận</span>
-    return <span className="px-2 py-0.5 bg-secondary text-muted-foreground rounded text-xs border border-border">Chưa xác nhận</span>
-  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 w-full">
@@ -64,36 +53,18 @@ export default async function DashboardPage() {
               {upcomingSessions.map((session) => {
                 const goingCount = rsvpsData.filter(r => r.session_id === session.id && r.status === 'going').length
                 const myStatus = rsvpsData.find(r => r.session_id === session.id && r.user_id === user?.id)?.status || null
+                const sessionRsvps = rsvpsData.filter(r => r.session_id === session.id)
                 
                 return (
-                  <Link href={`/sessions/${session.id}`} key={session.id} className="block group">
-                    <Card className="h-full hover:shadow-md transition-all hover:border-primary">
-                      <CardHeader className="pb-3">
-                        <div className="flex justify-between items-start mb-2">
-                          <CardDescription><span className="font-medium text-primary">Sắp diễn ra</span></CardDescription>
-                          {getMyStatusBadge(myStatus)}
-                        </div>
-                        <CardTitle className="text-lg line-clamp-1 group-hover:text-primary transition-colors">{formatDate(session.start_time)}</CardTitle>
-                      </CardHeader>
-                      <CardContent className="pb-4 text-sm text-muted-foreground space-y-3">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-muted-foreground" />
-                          <span className="truncate">{session.venue || 'Chưa cập nhật địa điểm'}</span>
-                        </div>
-                        <div className="flex items-center justify-between bg-secondary p-2 rounded-md">
-                          <div className="flex items-center gap-1">
-                            <Users className="w-4 h-4 text-primary" />
-                            <span className="font-medium text-foreground">{goingCount} <span className="font-normal text-muted-foreground text-xs">đăng ký</span></span>
-                          </div>
-                          <div className="h-4 w-px bg-slate-300"></div>
-                          <div className="flex items-center gap-1">
-                            <CheckCircle2 className="w-4 h-4 text-primary" />
-                            <span className="font-medium text-foreground">{session.total_attendees || 0} <span className="font-normal text-muted-foreground text-xs">điểm danh</span></span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                  <SessionCard
+                    key={session.id}
+                    session={session}
+                    goingCount={goingCount}
+                    myStatus={myStatus}
+                    currentUserId={user?.id || ""}
+                    rsvpUsers={sessionRsvps as any}
+                    variant="upcoming"
+                  />
                 )
               })}
             </div>
@@ -117,36 +88,21 @@ export default async function DashboardPage() {
           <Card>
             <CardContent className="p-0">
               {recentSessions.length > 0 ? (
-                <div className="divide-y divide-slate-100">
+                <div className="divide-y divide-border">
                   {recentSessions.map((session) => {
                     const goingCount = rsvpsData.filter(r => r.session_id === session.id && r.status === 'going').length
+                    const sessionRsvps = rsvpsData.filter(r => r.session_id === session.id)
                     
                     return (
-                      <Link key={session.id} href={`/sessions/${session.id}`} className="block p-4 hover:bg-secondary transition-colors group">
-                        <div className="flex justify-between items-start mb-1">
-                          <span className="font-medium text-foreground group-hover:text-primary transition-colors">
-                            {new Date(session.start_time).toLocaleDateString('vi-VN')}
-                          </span>
-                          <span className="text-[10px] px-2 py-0.5 bg-primary/20 text-primary rounded-full font-medium">
-                            {session.status === 'settled' ? 'Đã quyết toán' : 'Hoàn thành'}
-                          </span>
-                        </div>
-                        <div className="text-sm text-muted-foreground flex justify-between items-center mt-2">
-                          <div className="flex items-center gap-3">
-                            <span className="flex items-center gap-1" title="Số đăng ký">
-                              <Users className="w-3 h-3 text-muted-foreground" /> {goingCount}
-                            </span>
-                            <span className="flex items-center gap-1" title="Đã điểm danh">
-                              <CheckCircle2 className="w-3 h-3 text-primary" /> {session.total_attendees || 0}
-                            </span>
-                          </div>
-                          {session.cost_per_person && (
-                            <span className="font-medium text-foreground">
-                              {session.cost_per_person.toLocaleString('vi-VN')}đ / người
-                            </span>
-                          )}
-                        </div>
-                      </Link>
+                      <SessionCard
+                        key={session.id}
+                        session={session}
+                        goingCount={goingCount}
+                        myStatus={null}
+                        currentUserId={user?.id || ""}
+                        rsvpUsers={sessionRsvps as any}
+                        variant="recent"
+                      />
                     )
                   })}
                 </div>

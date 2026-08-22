@@ -34,3 +34,35 @@ export async function logoutAction() {
   await authService.logout();
   redirect("/login");
 }
+
+export async function updateProfileAction(fullName: string) {
+  return actionWrapper(async () => {
+    const { createClient } = await import("@/lib/supabase/server");
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      throw new Error("Bạn phải đăng nhập");
+    }
+
+    if (!fullName || fullName.trim().length === 0) {
+      throw new Error("Họ tên không được để trống");
+    }
+
+    await authService.updateProfile(user.id, fullName.trim());
+  });
+}
+
+export async function changePasswordAction(currentPassword: string, newPassword: string) {
+  return actionWrapper(async () => {
+    if (!currentPassword || !newPassword) {
+      throw new Error("Vui lòng nhập đầy đủ thông tin");
+    }
+    if (newPassword.length < 6) {
+      throw new Error("Mật khẩu mới phải có ít nhất 6 ký tự");
+    }
+
+    await authService.changePassword(currentPassword, newPassword);
+  });
+}
+

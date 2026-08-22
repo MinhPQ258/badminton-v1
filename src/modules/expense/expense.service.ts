@@ -57,3 +57,46 @@ export async function settleSession(sessionId: string, userId: string) {
     throw new AppError("Lỗi khi chốt sổ", 500);
   }
 }
+
+export async function getDebtSummary(fromDate?: string, toDate?: string) {
+  try {
+    const payments = await expenseModel.getDebtSummary(fromDate, toDate);
+    
+    // Aggregate by user_id
+    const userMap = new Map<string, { totalDue: number; totalPaid: number }>();
+    
+    for (const payment of payments) {
+      const existing = userMap.get(payment.user_id) || { totalDue: 0, totalPaid: 0 };
+      existing.totalDue += payment.amount_due || 0;
+      if (payment.payment_status === 'paid') {
+        existing.totalPaid += payment.amount_due || 0;
+      }
+      userMap.set(payment.user_id, existing);
+    }
+
+    return Array.from(userMap.entries()).map(([userId, data]) => ({
+      userId,
+      totalDue: data.totalDue,
+      totalPaid: data.totalPaid,
+      debt: data.totalDue - data.totalPaid,
+    }));
+  } catch (error) {
+    return [];
+  }
+}
+
+export async function getSessionExpenseReport(fromDate?: string, toDate?: string) {
+  try {
+    const sessions = await expenseModel.getSessionExpenseReport(fromDate, toDate);
+    const sessionIds = sessions.map(s => s.id);
+    const allExpenses = await expenseModel.getExpenseDetailsForSessions(sessionIds);
+
+    return sessions.map(session => ({
+      ...session,
+      expenses: allExpenses.filter(e => e.session_id === session.id),
+    }));
+  } catch (error) {
+    return [];
+  }
+}
+
