@@ -26,7 +26,7 @@ interface ParticipantsModalProps {
   showAttendanceTab?: boolean
 }
 
-export default function ParticipantsModal({ open, onClose, rsvpUsers, attendances = [], guests = [], totalAttendees, sessionDate }: ParticipantsModalProps) {
+export default function ParticipantsModal({ open, onClose, rsvpUsers, attendances = [], guests = [], totalAttendees, sessionDate, showAttendanceTab }: ParticipantsModalProps) {
   const [tab, setTab] = useState<"rsvp" | "attendance">("rsvp")
 
   const goingUsers = rsvpUsers.filter(r => r.status === "going")
