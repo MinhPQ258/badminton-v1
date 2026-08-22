@@ -10,6 +10,14 @@ export default async function Navbar() {
 
   if (!user) return null
 
+  // Fetch current user's role
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+  const isAdmin = profile?.role === 'admin'
+
   return (
     <header className="border-b border-border bg-card">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -27,9 +35,13 @@ export default async function Navbar() {
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          <UserMenu userName={user.user_metadata?.full_name || user.email || "Khách"} />
+          <UserMenu 
+            userName={user.user_metadata?.full_name || user.email || "Khách"} 
+            isAdmin={isAdmin} 
+          />
         </div>
       </div>
     </header>
   )
 }
+

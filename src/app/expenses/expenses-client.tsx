@@ -205,7 +205,7 @@ export default function ExpensesClient({ profiles, initialDebts, initialSessions
       </div>
 
       {loading && (
-        <div className="p-4 text-center text-sm text-muted-foreground">Đang tải...</div>
+        <div className="p-4 text-center text-sm text-muted-foreground">thinking...</div>
       )}
 
       {/* Debts Tab */}

@@ -16,9 +16,10 @@ interface SettingsClientProps {
     username: string
     email: string
   }
+  isAdmin?: boolean
 }
 
-export default function SettingsClient({ user }: SettingsClientProps) {
+export default function SettingsClient({ user, isAdmin = false }: SettingsClientProps) {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [showProfileEdit, setShowProfileEdit] = useState(false)
@@ -40,6 +41,12 @@ export default function SettingsClient({ user }: SettingsClientProps) {
   // Avatar gradient từ chữ cái đầu
   const initial = user.fullName.charAt(0).toUpperCase()
 
+  const avatar = (
+    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary via-emerald-400 to-cyan-400 flex items-center justify-center text-primary-foreground text-xl font-bold">
+      {initial}
+    </div>
+  )
+
   return (
     <>
       <div className="min-h-screen bg-secondary flex flex-col transition-colors duration-300">
@@ -59,9 +66,16 @@ export default function SettingsClient({ user }: SettingsClientProps) {
               className="w-full bg-card rounded-2xl border border-border p-4 flex items-center gap-4 hover:bg-card/80 transition-colors text-left"
             >
               {/* Avatar */}
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary via-emerald-400 to-cyan-400 flex items-center justify-center text-primary-foreground text-xl font-bold shrink-0 shadow-lg shadow-primary/20">
-                {initial}
-              </div>
+              {isAdmin ? (
+                <div className="admin-premium-ring shrink-0 shadow-lg shadow-primary/20">
+                  {avatar}
+                </div>
+              ) : (
+                <div className="shrink-0 shadow-lg shadow-primary/20 rounded-full">
+                  {avatar}
+                </div>
+              )}
+
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-foreground text-base truncate">{user.fullName}</p>

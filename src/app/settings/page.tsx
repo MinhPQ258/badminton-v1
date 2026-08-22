@@ -10,6 +10,14 @@ export default async function SettingsPage() {
     redirect("/login")
   }
 
+  // Lấy role của user hiện tại
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+  const isAdmin = profile?.role === "admin"
+
   const fullName = user.user_metadata?.full_name || "Chưa cập nhật"
   const email = user.email || ""
   const username = email.split("@")[0] || "unknown"
@@ -21,6 +29,8 @@ export default async function SettingsPage() {
         username,
         email,
       }}
+      isAdmin={isAdmin}
     />
   )
 }
+

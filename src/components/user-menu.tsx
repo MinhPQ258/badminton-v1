@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { LogOut, User, UserCircle } from "lucide-react"
 import { logoutAction } from "@/app/actions/auth"
 
-export default function UserMenu({ userName }: { userName: string }) {
+export default function UserMenu({ userName, isAdmin = false }: { userName: string; isAdmin?: boolean }) {
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -18,16 +18,27 @@ export default function UserMenu({ userName }: { userName: string }) {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  const avatar = (
+    <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm">
+      {userName.charAt(0).toUpperCase()}
+    </div>
+  )
+
   return (
     <div className="relative" ref={menuRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 p-1.5 rounded-full hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
-        <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm">
-          {userName.charAt(0).toUpperCase()}
-        </div>
+        {isAdmin ? (
+          <div className="admin-premium-ring">
+            {avatar}
+          </div>
+        ) : (
+          avatar
+        )}
       </button>
+
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-card rounded-lg shadow-lg border border-border py-1 z-50">
